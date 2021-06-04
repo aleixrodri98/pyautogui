@@ -22,6 +22,40 @@ if sys.platform in ('java', 'darwin', 'win32'):
 Much of this code is based on information gleaned from Paul Barton's PyKeyboard in PyUserInput from 2013, itself derived from Akkana Peck's pykey in 2008 ( http://www.shallowsky.com/software/crikey/pykey-0.1 ), itself derived from her "Crikey" lib.
 """
 
+class X11Error(Exception):
+    """An error that is thrown at the end of a code block managed by a
+    :func:`display_manager` if an *X11* error occurred.
+    """
+    pass
+
+
+def display_manager(display):
+    """Traps *X* errors and raises an :class:``X11Error`` at the end if any
+    error occurred.
+    This handler also ensures that the :class:`Xlib.display.Display` being
+    managed is sync'd.
+    :param Xlib.display.Display display: The *X* display.
+    :return: the display
+    :rtype: Xlib.display.Display
+    """
+    from contextlib import contextmanager
+
+    @contextmanager
+    def manager():
+        errors = []
+
+        def handler(*args):
+            errors.append(args)
+
+        old_handler = display.set_error_handler(handler)
+        yield display
+        display.sync()
+        display.set_error_handler(old_handler)
+        if errors:
+            raise X11Error(errors)
+
+    return manager()
+
 class PyAutoGuiDriver(object):
     def __init__(self, display):
         self._display = Display(display)
@@ -213,24 +247,24 @@ class PyAutoGuiDriver(object):
 
 
     def _moveTo(self, x, y):
-        fake_input(self._display, X.MotionNotify, x=x, y=y)
-        self._display.sync()
+        with display_manager(self._display) as d:
+            fake_input(d, X.MotionNotify, x=x, y=y)
 
 
     def _mouseDown(self, x, y, button):
         self._moveTo(x, y)
         assert button in BUTTON_NAME_MAPPING.keys(), "button argument not in ('left', 'middle', 'right', 4, 5, 6, 7)"
         button = BUTTON_NAME_MAPPING[button]
-        fake_input(self._display, X.ButtonPress, button)
-        self._display.sync()
+        with display_manager(self._display) as d:
+            fake_input(d, X.ButtonPress, button)
 
 
     def _mouseUp(self, x, y, button):
         self._moveTo(x, y)
         assert button in BUTTON_NAME_MAPPING.keys(), "button argument not in ('left', 'middle', 'right', 4, 5, 6, 7)"
         button = BUTTON_NAME_MAPPING[button]
-        fake_input(self._display, X.ButtonRelease, button)
-        self._display.sync()
+        with display_manager(self._display) as d:
+            fake_input(d, X.ButtonRelease, button)
 
 
     def _keyDown(self, key):
@@ -251,20 +285,21 @@ class PyAutoGuiDriver(object):
             return
 
         if type(key) == int:
-            fake_input(self._display, X.KeyPress, key)
-            self._display.sync()
+            with display_manager(self._display) as d:
+                fake_input(d, X.KeyPress, key)
             return
 
         needsShift = pyautogui.isShiftCharacter(key)
         if needsShift:
-            fake_input(self._display, X.KeyPress, self.keyboardMapping['shift'])
+            with display_manager(self._display) as d:
+                fake_input(d, X.KeyPress, self.keyboardMapping['shift'])
 
-        fake_input(self._display, X.KeyPress, self.keyboardMapping[key])
+        with display_manager(self._display) as d:
+            fake_input(d, X.KeyPress, self.keyboardMapping[key])
 
         if needsShift:
-            fake_input(self._display, X.KeyRelease, self.keyboardMapping['shift'])
-        self._display.sync()
-
+            with display_manager(self._display) as d:
+                fake_input(d, X.KeyRelease, self.keyboardMapping['shift'])
 
     def _keyUp(self, key):
         """Performs a keyboard key release (without the press down beforehand).
@@ -288,9 +323,8 @@ class PyAutoGuiDriver(object):
             keycode = key
         else:
             keycode = self.keyboardMapping[key]
-
-        fake_input(self._display, X.KeyRelease, keycode)
-        self._display.sync()
+        with display_manager(self._display) as d:
+            fake_input(d, X.KeyRelease, keycode)
 
 
 # Taken from PyKeyboard's ctor function.

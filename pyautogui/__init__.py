@@ -13,7 +13,7 @@
 from __future__ import absolute_import, division, print_function
 
 
-__version__ = "0.9.52"
+__version__ = "1.0.0"
 
 import sys
 import time
@@ -23,6 +23,8 @@ import platform
 import re
 import functools
 from contextlib import contextmanager
+
+from pyclick import HumanCurve
 
 
 class PyAutoGUIException(Exception):
@@ -1421,13 +1423,10 @@ class PyAutoGui(object):
 
         if duration > MINIMUM_DURATION:
             # Non-instant moving/dragging involves tweening:
-            num_steps = max(width, height)
-            sleep_amount = duration / num_steps
-            if sleep_amount < MINIMUM_SLEEP:
-                num_steps = int(duration / MINIMUM_SLEEP)
-                sleep_amount = duration / num_steps
 
-            steps = [self.getPointOnLine(startx, starty, x, y, tween(n / num_steps)) for n in range(num_steps)]
+            human_curve = HumanCurve((startx, starty), (x, y))
+            steps = human_curve.points
+            sleep_amount = (duration / len(steps)) - 0.1
             # Making sure the last position is the actual destination.
             steps.append((x, y))
 

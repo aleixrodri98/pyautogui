@@ -1426,7 +1426,7 @@ class PyAutoGui(object):
 
             human_curve = HumanCurve((startx, starty), (x, y))
             steps = human_curve.points
-            sleep_amount = (duration / len(steps)) - 0.1
+            sleep_amount = (duration / len(steps))
             # Making sure the last position is the actual destination.
             steps.append((x, y))
 

@@ -573,7 +573,11 @@ Size = collections.namedtuple("Size", "width height")
 
 class PyAutoGui(object):
     def __init__(self, display):
-        self.platformModule = platformModule.PyAutoGuiDriver(display)
+        if platform.system() == "Linux":
+            self.platformModule = platformModule.PyAutoGuiDriver(display)
+        else:
+            self.platformModule = platformModule
+
         self._right, self._bottom = self.size()
         self.FAILSAFE_POINTS = [(0, 0)]
         self.FAILSAFE_POINTS.extend([(0, self._bottom - 1), (self._right - 1, 0), (self._right - 1, self._bottom - 1)])

@@ -547,7 +547,7 @@ PAUSE = 0.1  # Tenth-second pause by default.
 # Interface need some catch up time on darwin (macOS) systems. Possible values probably differ based on your system performance.
 # This value affects mouse moveTo, dragTo and key event duration.
 # TODO: Find a dynamic way to let the system catch up instead of blocking with a magic number.
-DARWIN_CATCH_UP_TIME = 0.01
+DARWIN_CATCH_UP_TIME = 0.005
 
 # If the mouse is over a coordinate in FAILSAFE_POINTS and FAILSAFE is True, the FailSafeException is raised.
 # The rest of the points are added to the FAILSAFE_POINTS list at the bottom of this file, after size() has been defined.
@@ -1433,6 +1433,9 @@ class PyAutoGui(object):
             sleep_amount = (duration / len(steps))
             # Making sure the last position is the actual destination.
             steps.append((x, y))
+
+        if sys.platform == "darwin":
+            sleep_amount = 0
 
         for tweenX, tweenY in steps:
             if len(steps) > 1:

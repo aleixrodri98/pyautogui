@@ -521,7 +521,7 @@ if sys.platform.startswith("java"):
     raise NotImplementedError("Jython is not yet supported by PyAutoGUI.")
 elif sys.platform == "darwin":
     from . import _pyautogui_osx as platformModule
-elif sys.platform == "win32":
+elif sys.platform == "win32" or 'Microsoft' in platform.uname().release:
     from . import _pyautogui_win as platformModule
 elif platform.system() == "Linux":
     from . import _pyautogui_x11 as platformModule
@@ -573,7 +573,7 @@ Size = collections.namedtuple("Size", "width height")
 
 class PyAutoGui(object):
     def __init__(self, display):
-        if platform.system() == "Linux":
+        if platform.system() == "Linux" and 'Microsoft' not in platform.uname().release:
             self.platformModule = platformModule.PyAutoGuiDriver(display)
         else:
             self.platformModule = platformModule

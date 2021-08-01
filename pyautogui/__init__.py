@@ -1428,7 +1428,7 @@ class PyAutoGui(object):
         if duration > MINIMUM_DURATION:
             # Non-instant moving/dragging involves tweening:
 
-            human_curve = HumanCurve((startx, starty), (x, y))
+            human_curve = HumanCurve((startx, starty), (x, y), distortionMean=2, distortionStdev=2, distortionFrequency=0.7)
             steps = human_curve.points
             sleep_amount = (duration / len(steps))
             # Making sure the last position is the actual destination.

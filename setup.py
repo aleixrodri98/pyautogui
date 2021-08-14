@@ -29,7 +29,8 @@ setup(
     test_suite='tests',
     install_requires=['pyobjc-core;platform_system=="Darwin"', 'pyobjc;platform_system=="Darwin"',
                       'python-xlib;platform_system=="Linux"','pymsgbox', 'PyTweening>=1.0.1',
-                      'pyscreeze>=0.1.21', 'pygetwindow>=0.0.5', 'mouseinfo', 'pyclick', 'numpy==1.19.5'],
+                      'pyscreeze>=0.1.21', 'pygetwindow>=0.0.5', 'mouseinfo', 'pyclick', 
+                      'numpy==1.19.5; python_version < "3.6"','numpy; python_version > "3.6"'],
     keywords="gui automation test testing keyboard mouse cursor click press keystroke control",
     classifiers=[
         'Development Status :: 4 - Beta',

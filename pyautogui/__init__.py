@@ -24,7 +24,7 @@ import re
 import functools
 from contextlib import contextmanager
 
-from pyclick import HumanCurve
+from pyautogui.wind_mouse import wind_mouse
 
 
 class PyAutoGUIException(Exception):
@@ -1427,13 +1427,7 @@ class PyAutoGui(object):
 
         if duration > MINIMUM_DURATION:
             # Non-instant moving/dragging involves tweening:
-
-            targetPoints = 80
-            if sys.platform == "darwin":
-                targetPoints = 50
-
-            human_curve = HumanCurve((startx, starty), (x, y), distortionMean=2, distortionStdev=2, distortionFrequency=0.7, targetPoints=targetPoints)
-            steps = human_curve.points
+            steps = wind_mouse(startx, starty, x, y)
             sleep_amount = (duration / len(steps))
             # Making sure the last position is the actual destination.
             steps.append((x, y))

@@ -1431,7 +1431,7 @@ class PyAutoGui(object):
             # Non-instant moving/dragging involves tweening:
             dist = math.hypot(x - startx, y - starty)
 
-            targetPoints = int(dist/1000 * 150)
+            targetPoints = int(dist/1000 * 100)
 
             if targetPoints < 50:
                 targetPoints = 50

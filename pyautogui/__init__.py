@@ -1428,7 +1428,7 @@ class PyAutoGui(object):
         if duration > MINIMUM_DURATION:
             # Non-instant moving/dragging involves tweening:
             steps = wind_mouse(startx, starty, x, y)
-            sleep_amount = (duration / len(steps))
+            sleep_amount = (duration / len(steps)) * 2
             # Making sure the last position is the actual destination.
             steps.append((x, y))
 

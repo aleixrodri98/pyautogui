@@ -22,9 +22,11 @@ import os
 import platform
 import re
 import functools
+import random
+import math
 from contextlib import contextmanager
 
-from pyautogui.wind_mouse import wind_mouse
+from pyclick import HumanCurve
 
 
 class PyAutoGUIException(Exception):
@@ -1427,18 +1429,36 @@ class PyAutoGui(object):
 
         if duration > MINIMUM_DURATION:
             # Non-instant moving/dragging involves tweening:
-            steps = wind_mouse(startx, starty, x, y)
-            sleep_amount = (duration / len(steps)) * 2
+            dist = math.hypot(x - startx, y - starty)
+
+            targetPoints = int(dist/1000 * 150)
+
+            if targetPoints < 50:
+                targetPoints = 50
+                knotsCount = random.randint(1,2)
+            else:
+                knotsCount = random.randint(1,4)
+
+            human_curve = HumanCurve(
+                (startx, starty),
+                (x, y),
+                offsetBoundaryX=random.randint(100,200),
+                offsetBoundaryY=random.randint(100,200),
+                knotsCount=knotsCount,
+                distortionMean=random.randint(1,2),
+                distortionStdev=random.randint(1,2),
+                distortionFrequency=random.uniform(0.5, 1),
+                targetPoints=targetPoints
+            )
+            steps = human_curve.points
+            sleep_amount = (duration / len(steps))
             # Making sure the last position is the actual destination.
             steps.append((x, y))
-
-        if sys.platform == "darwin":
-            sleep_amount = 0
 
         for tweenX, tweenY in steps:
             if len(steps) > 1:
                 # A single step does not require tweening.
-                time.sleep(sleep_amount)
+                time.sleep(random.uniform(0, sleep_amount + 0.015))
 
             tweenX = int(round(tweenX))
             tweenY = int(round(tweenY))

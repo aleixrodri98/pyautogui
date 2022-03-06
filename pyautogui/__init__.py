@@ -1448,7 +1448,8 @@ class PyAutoGui(object):
                 distortionMean=random.randint(1,2),
                 distortionStdev=random.randint(1,2),
                 distortionFrequency=random.uniform(0.5, 1),
-                targetPoints=targetPoints
+                targetPoints=targetPoints,
+                tweening=easeOutSine
             )
             steps = human_curve.points
             sleep_amount = (duration / len(steps))
@@ -1458,11 +1459,10 @@ class PyAutoGui(object):
         for tweenX, tweenY in steps:
             if len(steps) > 1:
                 # A single step does not require tweening.
-                time.sleep(random.uniform(0, sleep_amount + 0.015))
+                time.sleep(random.uniform(0.01, sleep_amount + 0.015))
 
             tweenX = int(round(tweenX))
             tweenY = int(round(tweenY))
-
             # Do a fail-safe check to see if the user moved the mouse to a fail-safe position, but not if the mouse cursor
             # moved there as a result of this function. (Just because tweenX and tweenY aren't in a fail-safe position
             # doesn't mean the user couldn't have moved the mouse cursor to a fail-safe position.)
